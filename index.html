@@ -1,0 +1,256 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>FitFuel — Track your meals. Reach your goals.</title>
+  <link rel="stylesheet" href="styles.css" />
+</head>
+<body>
+
+  <!-- LOGIN MODAL -->
+  <div class="auth-modal" id="login-modal" role="dialog" aria-modal="true" aria-label="Log In">
+    <div class="auth-modal-box">
+      <button class="auth-modal-close" aria-label="Close" onclick="Auth.closeModal('login-modal')">&times;</button>
+      <div class="auth-modal-logo"><img src="logo.png" alt="FitFuel" /></div>
+      <h2>Welcome back</h2>
+      <p class="auth-sub">Log in to access your dashboard & data.</p>
+      <div class="auth-error" id="login-error"></div>
+      <form id="login-form" novalidate>
+        <div class="form-group">
+          <label for="login-email">Email</label>
+          <input type="email" id="login-email" placeholder="you@email.com" required />
+        </div>
+        <div class="form-group">
+          <label for="login-password">Password</label>
+          <input type="password" id="login-password" placeholder="Enter your password" required />
+        </div>
+        <button type="submit" class="btn-auth">Log In</button>
+      </form>
+      <p class="auth-switch">No account? <a href="#" id="switch-to-signup">Sign up free</a></p>
+    </div>
+  </div>
+
+  <!-- SIGNUP MODAL -->
+  <div class="auth-modal" id="signup-modal" role="dialog" aria-modal="true" aria-label="Sign Up">
+    <div class="auth-modal-box">
+      <button class="auth-modal-close" aria-label="Close" onclick="Auth.closeModal('signup-modal')">&times;</button>
+      <div class="auth-modal-logo"><img src="logo.png" alt="FitFuel" /></div>
+      <h2>Create account</h2>
+      <p class="auth-sub">Start tracking your nutrition for free.</p>
+      <div class="auth-error" id="signup-error"></div>
+      <form id="signup-form" novalidate>
+        <div class="form-group">
+          <label for="signup-name">Full Name</label>
+          <input type="text" id="signup-name" placeholder="Your name" required />
+        </div>
+        <div class="form-group">
+          <label for="signup-email">Email</label>
+          <input type="email" id="signup-email" placeholder="you@email.com" required />
+        </div>
+        <div class="form-group">
+          <label for="signup-password">Password</label>
+          <input type="password" id="signup-password" placeholder="Choose a password" required minlength="6" />
+        </div>
+        <button type="submit" class="btn-auth">Create Account</button>
+      </form>
+      <p class="auth-switch">Already have an account? <a href="#" id="switch-to-login">Log in</a></p>
+    </div>
+  </div>
+
+  <!-- NAVBAR -->
+  <nav class="navbar">
+    <a href="index.html" class="nav-logo"><img src="logo.png" alt="FitFuel Logo" /></a>
+    <ul class="nav-links">
+      <li><a href="#top">Home</a></li>
+      <li><a href="#features">Features</a></li>
+      <li><a href="calculator.html">Calculator</a></li>
+      <li><a href="about.html">About</a></li>
+      <li><a href="#contact">Contact</a></li>
+    </ul>
+    <div class="nav-actions">
+      <a href="#" class="btn btn-ghost">Log In</a>
+      <a href="#" class="btn btn-primary">Sign Up</a>
+    </div>
+  </nav>
+
+  <main class="page-content" id="top">
+
+    <!-- HERO -->
+    <section class="hero">
+      <div class="hero-text">
+        <div class="hero-badge">New · Nutrition Tracking</div>
+        <h1>Track your meals.<br><em>Understand</em> your nutrition.<br>Reach your goals.</h1>
+        <p>Everything you need to manage your nutrition in one place — from calorie counting to macro tracking and progress monitoring.</p>
+        <div class="hero-actions">
+          <a href="#" class="btn btn-mint">Get Started</a>
+          <a href="#features" class="btn btn-outline">Learn More</a>
+        </div>
+      </div>
+      <div class="hero-image">
+        <div class="hero-img-card">
+          <div class="hero-food-grid">
+            <div class="food-item">
+              <span class="food-emoji">🥗</span>
+              <span class="food-label">Garden Salad</span>
+              <span class="food-cal">142 kcal</span>
+            </div>
+            <div class="food-item">
+              <span class="food-emoji">🍳</span>
+              <span class="food-label">Egg White</span>
+              <span class="food-cal">78 kcal</span>
+            </div>
+            <div class="food-item">
+              <span class="food-emoji">🫐</span>
+              <span class="food-label">Blueberries</span>
+              <span class="food-cal">57 kcal</span>
+            </div>
+            <div class="food-item">
+              <span class="food-emoji">🥑</span>
+              <span class="food-label">Avocado</span>
+              <span class="food-cal">234 kcal</span>
+            </div>
+          </div>
+          <div class="hero-stats">
+            <div class="stat-pill">
+              <span class="stat-num">511</span>
+              <span class="stat-lbl">kcal today</span>
+            </div>
+            <div class="stat-pill">
+              <span class="stat-num">38g</span>
+              <span class="stat-lbl">protein</span>
+            </div>
+            <div class="stat-pill">
+              <span class="stat-num">72%</span>
+              <span class="stat-lbl">goal met</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- FEATURES -->
+    <section class="section" id="features">
+      <div class="section-center fade-in">
+        <span class="section-tag">Features</span>
+        <h2 class="section-title">Everything you need to <em>thrive</em></h2>
+        <p class="section-sub">FitFuel brings together all the tools you need to build healthy habits and stay on track with your nutrition goals.</p>
+      </div>
+
+      <div class="feature-list">
+
+        <!-- Feature 1 -->
+        <div class="feature-item fade-in">
+          <div class="feature-visual mint-bg">
+            <div class="feature-visual-inner">
+              <span class="feature-icon-main">🍽️</span>
+              <span class="feature-chip">+1,200 foods in database</span>
+            </div>
+          </div>
+          <div class="feature-text">
+            <span class="feature-number">01 · Track Meals</span>
+            <h3>Log your daily food intake easily</h3>
+            <p>Quickly search and log thousands of foods. Track your breakfast, lunch, dinner, and snacks with a streamlined interface designed to make journaling effortless.</p>
+            <a href="#" class="btn btn-mint btn-sm">Start Tracking</a>
+          </div>
+        </div>
+
+        <!-- Feature 2 -->
+        <div class="feature-item reverse fade-in">
+          <div class="feature-visual purple-bg">
+            <div class="feature-visual-inner">
+              <span class="feature-icon-main">🧮</span>
+              <span class="feature-chip">BMI · Calories · Macros</span>
+            </div>
+          </div>
+          <div class="feature-text">
+            <span class="feature-number">02 · Nutrition Calculator</span>
+            <h3>Calculate calories, BMI, and macros</h3>
+            <p>Get personalized calorie targets based on your age, weight, height, and activity level. Understand your body composition and plan your macronutrient intake with ease.</p>
+            <a href="calculator.html" class="btn btn-mint btn-sm">Try Calculator</a>
+          </div>
+        </div>
+
+        <!-- Feature 3 -->
+        <div class="feature-item fade-in">
+          <div class="feature-visual peach-bg">
+            <div class="feature-visual-inner">
+              <span class="feature-icon-main">📈</span>
+              <span class="feature-chip">Weight · Streak · Goals</span>
+            </div>
+          </div>
+          <div class="feature-text">
+            <span class="feature-number">03 · Track Progress</span>
+            <h3>Monitor your weight and improvements</h3>
+            <p>Visualize your journey over time. Log your weight daily, celebrate milestones, and stay motivated with clear, beautiful progress charts and streak tracking.</p>
+            <a href="#" class="btn btn-mint btn-sm">Sign Up Now</a>
+          </div>
+        </div>
+
+      </div>
+    </section>
+
+    <!-- CTA -->
+    <div class="cta-section fade-in" id="contact">
+      <h2>Start your fitness journey today</h2>
+      <p>Join thousands of people who are already tracking smarter and eating better with FitFuel.</p>
+      <div class="cta-actions">
+        <a href="#" class="btn btn-white">Sign Up Free</a>
+        <a href="about.html" class="btn btn-outline-white">Learn About Us</a>
+      </div>
+    </div>
+
+  </main>
+
+  <!-- FOOTER -->
+  <footer>
+    <div class="footer-top">
+      <div class="footer-brand">
+        <a href="index.html" class="nav-logo"><img src="logo.png" alt="FitFuel Logo" /></a>
+        <p>A web-based nutrition platform that helps you track meals, understand your body, and reach your health goals — one meal at a time.</p>
+        <div class="footer-email" style="margin-top:1.25rem;">
+          <input type="email" placeholder="your@email.com" />
+          <button class="btn-mint-sm">Subscribe</button>
+        </div>
+      </div>
+      <div class="footer-col">
+        <h4>Navigation</h4>
+        <ul>
+          <li><a href="index.html">Home</a></li>
+          <li><a href="#features">Features</a></li>
+          <li><a href="calculator.html">Calculator</a></li>
+          <li><a href="about.html">About</a></li>
+          <li><a href="#contact">Contact</a></li>
+        </ul>
+      </div>
+      <div class="footer-col">
+        <h4>Platform</h4>
+        <ul>
+          <li><a href="#">Log In</a></li>
+          <li><a href="#">Sign Up Free</a></li>
+          <li><a href="#">Privacy Policy</a></li>
+          <li><a href="#">Terms of Use</a></li>
+        </ul>
+      </div>
+    </div>
+    <div class="footer-bottom">
+      <span>© 2026 FitFuel. All rights reserved.</span>
+      <span>Made with 💚 for healthier lives</span>
+    </div>
+  </footer>
+
+  <script src="auth.js"></script>
+  <script>
+    const observer = new IntersectionObserver((entries) => {
+      entries.forEach(e => { if (e.isIntersecting) { e.target.classList.add('visible'); } });
+    }, { threshold: 0.12 });
+    document.querySelectorAll('.fade-in').forEach(el => observer.observe(el));
+
+    // Show login modal if redirected with ?auth=required
+    if (new URLSearchParams(location.search).get('auth') === 'required') {
+      setTimeout(() => Auth.openModal('login-modal'), 300);
+    }
+  </script>
+
+</body>
+</html>

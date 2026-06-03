@@ -1031,33 +1031,48 @@
       recognition.start();
     }
 
-    /* ── Chat voice mic (separate instance) ───────────── */
+    /* ── Chat voice mic ──────────────────────────────── */
     let chatVoicing = false;
     let chatRecognition = null;
 
+    function showChatStatus(msg, type) {
+      const el = document.getElementById('ai-chat-status');
+      el.textContent = msg;
+      el.className = 'voice-status' + (type ? ' ' + type : '');
+    }
+
     function initChatSpeech() {
-      const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
-      if (!SpeechRecognition) return false;
-      chatRecognition = new SpeechRecognition();
+      const SR = window.SpeechRecognition || window.webkitSpeechRecognition;
+      if (!SR) return false;
+      chatRecognition = new SR();
       chatRecognition.lang = 'en-US';
       chatRecognition.interimResults = false;
       chatRecognition.continuous = false;
       chatRecognition.maxAlternatives = 1;
+
+      chatRecognition.onspeechstart = () => showChatStatus('🎤 Speak now...', 'listening');
 
       chatRecognition.onresult = function (event) {
         const text = event.results[0][0].transcript;
         document.getElementById('ai-chat-input').value = text;
         document.getElementById('ai-mic-btn').classList.remove('listening');
         chatVoicing = false;
-        document.getElementById('ai-chat-status').textContent = '';
-        document.getElementById('ai-chat-status').className = 'voice-status';
-        // Auto-send after a short delay
+        showChatStatus('', '');
         setTimeout(() => sendChatMessage(), 300);
       };
 
-      chatRecognition.onerror = function () {
+      chatRecognition.onerror = function (e) {
         document.getElementById('ai-mic-btn').classList.remove('listening');
         chatVoicing = false;
+        if (e.error === 'no-speech') {
+          showChatStatus('No speech detected — try again', 'error');
+        } else if (e.error === 'audio-capture') {
+          showChatStatus('No mic found — check your microphone', 'error');
+        } else if (e.error === 'not-allowed') {
+          showChatStatus('Mic blocked — allow mic access in browser settings', 'error');
+        } else {
+          showChatStatus('Mic error: ' + e.error, 'error');
+        }
       };
 
       chatRecognition.onend = function () {
@@ -1070,16 +1085,14 @@
 
     function toggleChatMic() {
       if (!chatRecognition && !initChatSpeech()) {
-        document.getElementById('ai-chat-status').textContent = 'Speech not supported in this browser. Try Chrome.';
-        document.getElementById('ai-chat-status').className = 'voice-status error';
+        showChatStatus('Speech not supported — try Chrome', 'error');
         return;
       }
-      if (chatVoicing) { chatRecognition.stop(); chatVoicing = false; document.getElementById('ai-mic-btn').classList.remove('listening'); return; }
+      if (chatVoicing) { chatRecognition.stop(); chatVoicing = false; document.getElementById('ai-mic-btn').classList.remove('listening'); showChatStatus('', ''); return; }
       chatVoicing = true;
       document.getElementById('ai-mic-btn').classList.add('listening');
-      document.getElementById('ai-chat-status').textContent = '🎤 Listening...';
-      document.getElementById('ai-chat-status').className = 'voice-status listening';
-      chatRecognition.start();
+      showChatStatus('🎤 Listening...', 'listening');
+      try { chatRecognition.start(); } catch (e) { showChatStatus('Error: ' + e.message, 'error'); document.getElementById('ai-mic-btn').classList.remove('listening'); chatVoicing = false; }
     }
 
     // Initialise on load so it's ready

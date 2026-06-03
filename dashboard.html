@@ -8,6 +8,13 @@
   <meta name="description"
     content="Your personal FitFuel dashboard — track meals, macros, plan your week, and monitor your progress." />
   <link rel="stylesheet" href="styles.css" />
+  <link rel="manifest" href="manifest.json" />
+  <link rel="icon" href="icons/icon-192.png" sizes="192x192" />
+  <link rel="apple-touch-icon" href="icons/icon-192.png" />
+  <meta name="theme-color" content="#4a3f5c" />
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-status-bar-style" content="default" />
+  <meta name="apple-mobile-web-app-title" content="FitFuel" />
 </head>
 
 <body>
@@ -151,17 +158,72 @@
           <div class="meal-log-form">
             <h3>Log a Meal Manually</h3>
             <div class="meal-inputs">
-              <input type="text" id="meal-name" placeholder="Meal / Food name" />
+              <div class="meal-name-wrap">
+                <input type="text" id="meal-name" placeholder="Meal / Food name" />
+                <button class="mic-btn" id="mic-btn" title="Log meal by voice" onclick="toggleVoiceInput()">🎤</button>
+              </div>
               <input type="number" id="meal-cal" placeholder="Calories" min="0" />
               <input type="number" id="meal-protein" placeholder="Protein (g)" min="0" />
               <input type="number" id="meal-carbs" placeholder="Carbs (g)" min="0" />
             </div>
+            <div class="voice-status" id="voice-status"></div>
             <div class="meal-inputs" style="grid-template-columns:1fr auto;">
               <input type="number" id="meal-fat" placeholder="Fat (g)" min="0" />
               <button class="btn-add-meal" onclick="addMeal()">+ Add Meal</button>
             </div>
           </div>
 
+          <!-- ══ AI MEAL CHAT ═══════════════════════════════════ -->
+          <div class="ai-meal-section">
+            <div class="ai-meal-header">
+              <span class="ai-meal-title">🤖 AI Meal Chat</span>
+              <button class="ai-settings-btn" id="ai-settings-btn" title="Configure AI API Key" onclick="toggleAiSettings()">⚙️</button>
+            </div>
+            <div class="ai-settings" id="ai-settings" style="display:none;">
+              <label class="ai-settings-label">Enter your <strong>Google Gemini API Key</strong> (free at <a href="https://aistudio.google.com/apikey" target="_blank">aistudio.google.com/apikey</a>)</label>
+              <div class="ai-settings-row">
+                <input type="password" id="ai-api-key" placeholder="Paste your API key here" />
+                <button class="btn-save-key" onclick="saveAiKey()">Save</button>
+              </div>
+              <p class="ai-settings-hint" id="ai-key-status"></p>
+
+              <hr style="border:none;border-top:1px solid rgba(157,192,188,0.3);margin:0.75rem 0;" />
+              <label class="ai-settings-label"><strong>🎤 Microphone</strong></label>
+              <div id="ai-mic-status" style="margin-bottom:0.4rem;font-size:0.82rem;"></div>
+              <div style="display:flex;gap:0.4rem;align-items:stretch;">
+                <select class="ai-mic-select" id="ai-mic-select" style="flex:1;">
+                  <option value="">— Loading... —</option>
+                </select>
+                <button class="btn-save-key" onclick="loadMics()" title="Scan for mics" style="padding:0.4rem 0.6rem;">🔄</button>
+              </div>
+              <div class="ai-mic-level" id="ai-mic-level">
+                <div class="ai-mic-level-fill" id="ai-mic-level-fill"></div>
+              </div>
+              <div class="ai-mic-row" style="margin-top:0.4rem;">
+                <button class="btn-save-key" id="btn-test-mic" onclick="recordAndPlay()">🔴 Record & Play</button>
+                <span class="ai-mic-test-status" id="ai-mic-test-status"></span>
+              </div>
+            </div>
+            <div class="ai-chat-messages" id="ai-chat-messages">
+              <div class="ai-msg ai-msg-bot">
+                <span class="ai-msg-icon">🤖</span>
+                <div class="ai-msg-bubble">
+                  Hi! Tell me what you ate today — we'll figure out the nutrition together. Start with a meal or snack!
+                </div>
+              </div>
+            </div>
+            <div class="ai-running-total" id="ai-running-total" style="display:none;"></div>
+            <div class="ai-chat-input-row">
+              <input type="text" class="ai-chat-input" id="ai-chat-input" placeholder="Tell me what you ate..." />
+              <button class="mic-btn" id="ai-mic-btn" title="Speak what you ate" onclick="toggleChatMic()">🎤</button>
+              <button class="btn-parse-ai" id="btn-ai-send" onclick="sendChatMessage()">Send</button>
+            </div>
+            <div class="voice-status" id="ai-chat-status"></div>
+            <div class="ai-chat-actions" id="ai-chat-actions" style="display:none;">
+              <button class="btn-add-meal" id="btn-log-chat-meals" onclick="logChatMeals()">+ Log All Meals</button>
+              <button class="btn-add-meal" style="background:var(--cream);color:var(--text-muted);" onclick="resetChat()">Clear Chat</button>
+            </div>
+          </div>
 
           <div class="meal-list" id="meal-list"></div>
 
@@ -888,6 +950,457 @@
 
     renderQuickAdd();
 
+    /* ══════════════════════════════════════════════
+       VOICE MEAL LOGGING (Web Speech API)
+    ══════════════════════════════════════════════ */
+    let voicing = false;
+    let recognition = null;
+
+    function initSpeechRecognition() {
+      const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+      if (!SpeechRecognition) return false;
+      recognition = new SpeechRecognition();
+      recognition.lang = 'en-US';
+      recognition.interimResults = false;
+      recognition.continuous = false;
+      recognition.maxAlternatives = 1;
+
+      recognition.onresult = function (event) {
+        const transcript = event.results[0][0].transcript.toLowerCase().trim();
+        document.getElementById('voice-status').textContent = '✓ Processed';
+        document.getElementById('voice-status').className = 'voice-status success';
+
+        // Parse: extract numbers with units
+        const calMatch = transcript.match(/(\d+)\s*(cal|calories)/i);
+        const proteinMatch = transcript.match(/(\d+)\s*(p|protein)/i);
+        const carbsMatch = transcript.match(/(\d+)\s*(c|carbs|carbs|carbs|car|carbs)/i);
+        const fatMatch = transcript.match(/(\d+)\s*(f|fat)/i);
+
+        // Remove matched patterns to get the food name
+        let nameRaw = transcript;
+        const patterns = [/(\d+\s*(cal|calories|p|protein|c|carbs|carbs|car|carbs|f|fat)\s*)/gi, /\b(and|with|has|have|is)\b/g];
+        patterns.forEach(p => { nameRaw = nameRaw.replace(p, ''); });
+        nameRaw = nameRaw.replace(/\s+/g, ' ').trim();
+        // Capitalise first letter of each word
+        const foodName = nameRaw.replace(/\b\w/g, c => c.toUpperCase());
+
+        if (foodName) document.getElementById('meal-name').value = foodName;
+        if (calMatch) document.getElementById('meal-cal').value = parseInt(calMatch[1]);
+        if (proteinMatch) document.getElementById('meal-protein').value = parseInt(proteinMatch[1]);
+        if (carbsMatch) document.getElementById('meal-carbs').value = parseInt(carbsMatch[1]);
+        if (fatMatch) document.getElementById('meal-fat').value = parseInt(fatMatch[1]);
+
+        setTimeout(() => { document.getElementById('voice-status').textContent = ''; document.getElementById('voice-status').className = 'voice-status'; }, 3000);
+        voicing = false;
+        document.getElementById('mic-btn').classList.remove('listening');
+      };
+
+      recognition.onerror = function (event) {
+        document.getElementById('voice-status').textContent = 'Voice input error: ' + event.error;
+        document.getElementById('voice-status').className = 'voice-status error';
+        voicing = false;
+        document.getElementById('mic-btn').classList.remove('listening');
+      };
+
+      recognition.onend = function () {
+        voicing = false;
+        document.getElementById('mic-btn').classList.remove('listening');
+      };
+
+      return true;
+    }
+
+    function toggleVoiceInput() {
+      if (!recognition && !initSpeechRecognition()) {
+        document.getElementById('voice-status').textContent = 'Speech recognition not supported in this browser. Try Chrome.';
+        document.getElementById('voice-status').className = 'voice-status error';
+        return;
+      }
+      if (voicing) {
+        recognition.stop();
+        voicing = false;
+        document.getElementById('mic-btn').classList.remove('listening');
+        document.getElementById('voice-status').textContent = '';
+        document.getElementById('voice-status').className = 'voice-status';
+        return;
+      }
+      voicing = true;
+      document.getElementById('mic-btn').classList.add('listening');
+      document.getElementById('voice-status').textContent = '🎤 Listening... Say a meal like "Chicken breast 300 calories 30 protein 10 carbs 5 fat"';
+      document.getElementById('voice-status').className = 'voice-status listening';
+      recognition.start();
+    }
+
+    /* ── Chat voice mic (separate instance) ───────────── */
+    let chatVoicing = false;
+    let chatRecognition = null;
+
+    function initChatSpeech() {
+      const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+      if (!SpeechRecognition) return false;
+      chatRecognition = new SpeechRecognition();
+      chatRecognition.lang = 'en-US';
+      chatRecognition.interimResults = false;
+      chatRecognition.continuous = false;
+      chatRecognition.maxAlternatives = 1;
+
+      chatRecognition.onresult = function (event) {
+        const text = event.results[0][0].transcript;
+        document.getElementById('ai-chat-input').value = text;
+        document.getElementById('ai-mic-btn').classList.remove('listening');
+        chatVoicing = false;
+        document.getElementById('ai-chat-status').textContent = '';
+        document.getElementById('ai-chat-status').className = 'voice-status';
+        // Auto-send after a short delay
+        setTimeout(() => sendChatMessage(), 300);
+      };
+
+      chatRecognition.onerror = function () {
+        document.getElementById('ai-mic-btn').classList.remove('listening');
+        chatVoicing = false;
+      };
+
+      chatRecognition.onend = function () {
+        document.getElementById('ai-mic-btn').classList.remove('listening');
+        chatVoicing = false;
+      };
+
+      return true;
+    }
+
+    function toggleChatMic() {
+      if (!chatRecognition && !initChatSpeech()) {
+        document.getElementById('ai-chat-status').textContent = 'Speech not supported in this browser. Try Chrome.';
+        document.getElementById('ai-chat-status').className = 'voice-status error';
+        return;
+      }
+      if (chatVoicing) { chatRecognition.stop(); chatVoicing = false; document.getElementById('ai-mic-btn').classList.remove('listening'); return; }
+      chatVoicing = true;
+      document.getElementById('ai-mic-btn').classList.add('listening');
+      document.getElementById('ai-chat-status').textContent = '🎤 Listening...';
+      document.getElementById('ai-chat-status').className = 'voice-status listening';
+      chatRecognition.start();
+    }
+
+    // Initialise on load so it's ready
+    initSpeechRecognition();
+
+    /* ══════════════════════════════════════════════
+       AI MEAL CHAT (Google Gemini API)
+    ══════════════════════════════════════════════ */
+    const AI_KEY_STORAGE = 'fitfuel_gemini_key';
+    let chatHistory = [];
+    let chatFoods = [];
+
+    function getAiKey() { return localStorage.getItem(AI_KEY_STORAGE) || ''; }
+    function saveAiKey() {
+      const key = document.getElementById('ai-api-key').value.trim();
+      if (!key) return;
+      localStorage.setItem(AI_KEY_STORAGE, key);
+      document.getElementById('ai-settings').style.display = 'none';
+      document.getElementById('ai-key-status').textContent = '✓ API key saved';
+      document.getElementById('ai-key-status').style.color = 'var(--mint-mid)';
+      addBotMessage('API key saved! Now tell me what you ate today.');
+    }
+    function toggleAiSettings() {
+      const el = document.getElementById('ai-settings');
+      const opening = el.style.display === 'none';
+      el.style.display = opening ? 'block' : 'none';
+      if (opening) {
+        if (getAiKey()) document.getElementById('ai-api-key').value = getAiKey();
+        loadMics();
+      }
+    }
+
+    function addBotMessage(text) {
+      const container = document.getElementById('ai-chat-messages');
+      const msg = document.createElement('div');
+      msg.className = 'ai-msg ai-msg-bot';
+      msg.innerHTML = `<span class="ai-msg-icon">🤖</span><div class="ai-msg-bubble">${text}</div>`;
+      container.appendChild(msg);
+      container.scrollTop = container.scrollHeight;
+    }
+
+    function addUserMessage(text) {
+      const container = document.getElementById('ai-chat-messages');
+      const msg = document.createElement('div');
+      msg.className = 'ai-msg ai-msg-user';
+      msg.innerHTML = `<div class="ai-msg-bubble">${text}</div><span class="ai-msg-icon">👤</span>`;
+      container.appendChild(msg);
+      container.scrollTop = container.scrollHeight;
+    }
+
+    function updateRunningTotal() {
+      const el = document.getElementById('ai-running-total');
+      if (chatFoods.length === 0) { el.style.display = 'none'; return; }
+      el.style.display = 'block';
+      const totalCal = chatFoods.reduce((s, f) => s + (f.cal || 0), 0);
+      let html = '<div class="ai-total-title">📋 Running total:</div>';
+      chatFoods.forEach((f, i) => {
+        html += `<div class="ai-total-item">
+          <span>${f.name}</span>
+          <span class="ai-total-macros">${f.cal || 0} kcal · P ${f.protein || 0}g · C ${f.carbs || 0}g · F ${f.fat || 0}g</span>
+        </div>`;
+      });
+      html += `<div class="ai-total-sum">Total: ${Math.round(totalCal).toLocaleString()} kcal</div>`;
+      el.innerHTML = html;
+      document.getElementById('ai-chat-actions').style.display = 'block';
+    }
+
+    async function sendChatMessage() {
+      const input = document.getElementById('ai-chat-input');
+      const text = input.value.trim();
+      const statusEl = document.getElementById('ai-chat-status');
+      const sendBtn = document.getElementById('btn-ai-send');
+
+      if (!text) return;
+
+      let apiKey = getAiKey();
+      if (!apiKey) {
+        document.getElementById('ai-settings').style.display = 'block';
+        statusEl.textContent = 'Set your Gemini API key first (click ⚙️).';
+        statusEl.className = 'voice-status error';
+        return;
+      }
+
+      addUserMessage(text);
+      input.value = '';
+      sendBtn.disabled = true;
+      sendBtn.textContent = '...';
+      statusEl.textContent = '🤖 Thinking...';
+      statusEl.className = 'voice-status listening';
+
+      chatHistory.push({ role: 'user', parts: [{ text }] });
+
+      const systemPrompt = `You are a friendly nutrition assistant helping someone log their meals. Your job is to:
+
+1. Have a natural conversation — ask what they ate, confirm details, ask about portion sizes if unclear.
+2. Whenever the user mentions food, estimate its nutrition (calories, protein, carbs, fat) using standard portions.
+3. Keep a running list of ALL food items mentioned so far in the conversation.
+4. At the end of your response, include the current complete food list in this exact format:
+   [FOODS][{"name":"...","cal":N,"protein":N,"carbs":N,"fat":N},...][/FOODS]
+   Always include ALL foods mentioned so far in the [FOODS] block, not just new ones.
+5. If the user says they're done, confirm the full list and tell them to click "Log All Meals".
+
+Be warm and conversational. Ask follow-up questions like "What else did you have?" or "About how much?" Don't ask too many questions at once.`;
+
+      const contents = [{ role: 'user', parts: [{ text: systemPrompt }] }];
+      chatHistory.forEach(msg => contents.push(msg));
+
+      try {
+        const res = await fetch(
+          `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent`,
+          {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json', 'x-goog-api-key': apiKey },
+            body: JSON.stringify({ contents })
+          }
+        );
+
+        if (!res.ok) {
+          throw new Error(res.status === 403 ? 'Invalid or expired API key' : `API error (${res.status})`);
+        }
+
+        const data = await res.json();
+        let reply = data.candidates?.[0]?.content?.parts?.[0]?.text || '';
+
+        // Extract [FOODS] block
+        const foodsMatch = reply.match(/\[FOODS\](.*?)\[\/FOODS\]/s);
+        if (foodsMatch) {
+          try {
+            const parsed = JSON.parse(foodsMatch[1]);
+            if (Array.isArray(parsed) && parsed.length > 0) {
+              chatFoods = parsed;
+              updateRunningTotal();
+            }
+          } catch (e) { /* ignore parse errors */ }
+          reply = reply.replace(/\[FOODS\].*?\[\/FOODS\]/s, '').trim();
+        }
+
+        chatHistory.push({ role: 'model', parts: [{ text: reply }] });
+        addBotMessage(reply);
+        statusEl.textContent = '';
+        statusEl.className = 'voice-status';
+      } catch (err) {
+        statusEl.textContent = 'Error: ' + err.message;
+        statusEl.className = 'voice-status error';
+      } finally {
+        sendBtn.disabled = false;
+        sendBtn.textContent = 'Send';
+        input.focus();
+      }
+    }
+
+    function logChatMeals() {
+      if (chatFoods.length === 0) return;
+      chatFoods.forEach(f => {
+        meals.push({
+          name: f.name,
+          cal: Math.round(f.cal || 0),
+          protein: Math.round(f.protein || 0),
+          carbs: Math.round(f.carbs || 0),
+          fat: Math.round(f.fat || 0)
+        });
+      });
+      save(`meals_${TODAY}`, meals);
+      renderCalories();
+      addBotMessage('✅ All meals logged! Check your calorie counter above. Start a new conversation anytime.');
+      chatFoods = [];
+      updateRunningTotal();
+      document.getElementById('ai-chat-actions').style.display = 'none';
+    }
+
+    function resetChat() {
+      chatHistory = [];
+      chatFoods = [];
+      document.getElementById('ai-chat-messages').innerHTML = `
+        <div class="ai-msg ai-msg-bot">
+          <span class="ai-msg-icon">🤖</span>
+          <div class="ai-msg-bubble">Hi! Tell me what you ate today — we'll figure out the nutrition together. Start with a meal or snack!</div>
+        </div>`;
+      document.getElementById('ai-running-total').style.display = 'none';
+      document.getElementById('ai-chat-actions').style.display = 'none';
+      document.getElementById('ai-chat-status').textContent = '';
+      document.getElementById('ai-chat-status').className = 'voice-status';
+    }
+
+    // Allow Enter to send
+    document.getElementById('ai-chat-input').addEventListener('keydown', e => {
+      if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); sendChatMessage(); }
+    });
+
+    /* ── Mic selector & test ────────────────────────── */
+    const MIC_KEY = 'fitfuel_mic_id';
+    let testStream = null;
+    let testAnim = null;
+
+    async function loadMics() {
+      const select = document.getElementById('ai-mic-select');
+      const status = document.getElementById('ai-mic-status');
+
+      if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
+        status.textContent = '❌ Mic not supported in this browser. Try Chrome.';
+        select.innerHTML = '<option value="">— Not supported —</option>';
+        return;
+      }
+
+      select.innerHTML = '<option value="">— Scanning... —</option>';
+      status.textContent = '';
+
+      try {
+        const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+        stream.getTracks().forEach(t => t.stop());
+
+        const devices = await navigator.mediaDevices.enumerateDevices();
+        const mics = devices.filter(d => d.kind === 'audioinput');
+
+        select.innerHTML = '';
+        if (mics.length === 0) {
+          select.innerHTML = '<option value="">— No mic found —</option>';
+          return;
+        }
+
+        mics.forEach(mic => {
+          const opt = document.createElement('option');
+          opt.value = mic.deviceId;
+          opt.textContent = mic.label || `Microphone ${mics.indexOf(mic) + 1}`;
+          select.appendChild(opt);
+        });
+
+        const saved = localStorage.getItem(MIC_KEY);
+        if (saved && [...select.options].some(o => o.value === saved)) {
+          select.value = saved;
+        } else {
+          select.selectedIndex = 0;
+          localStorage.setItem(MIC_KEY, select.value);
+        }
+        select.addEventListener('change', () => localStorage.setItem(MIC_KEY, select.value));
+
+        status.textContent = '✅ Mic ready — click Record & Play';
+        status.style.color = '#27ae60';
+      } catch (e) {
+        select.innerHTML = '<option value="">— Mic unavailable —</option>';
+        status.textContent = '❌ ' + (e.name === 'NotAllowedError' ? 'Mic blocked — allow mic access in your browser settings' : e.message);
+        status.style.color = '#e74c3c';
+      }
+    }
+
+    function stopTest() {
+      if (testAnim) { cancelAnimationFrame(testAnim); testAnim = null; }
+      if (testStream) { testStream.getTracks().forEach(t => t.stop()); testStream = null; }
+      document.getElementById('ai-mic-level-fill').style.width = '0%';
+    }
+
+    function recordAndPlay() {
+      const btn = document.getElementById('btn-test-mic');
+      const status = document.getElementById('ai-mic-test-status');
+      const select = document.getElementById('ai-mic-select');
+      const deviceId = select.value;
+      stopTest();
+
+      if (!deviceId) { status.textContent = 'Select a mic from the list first'; return; }
+
+      btn.textContent = '⏺ Recording...';
+      status.textContent = '';
+
+      navigator.mediaDevices.getUserMedia({ audio: { deviceId: { exact: deviceId } } })
+        .then(stream => {
+          testStream = stream;
+
+          // Show live level meter while recording
+          const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+          const source = audioCtx.createMediaStreamSource(stream);
+          const analyser = audioCtx.createAnalyser();
+          analyser.fftSize = 256;
+          source.connect(analyser);
+          const dataArray = new Uint8Array(analyser.frequencyBinCount);
+
+          function draw() {
+            analyser.getByteTimeDomainData(dataArray);
+            let sum = 0;
+            for (let i = 0; i < dataArray.length; i++) sum += Math.abs(dataArray[i] - 128);
+            const pct = Math.min((sum / dataArray.length / 128) * 100, 100);
+            document.getElementById('ai-mic-level-fill').style.width = Math.max(pct, 2) + '%';
+            testAnim = requestAnimationFrame(draw);
+          }
+          draw();
+
+          // Record 2 seconds
+          const chunks = [];
+          const recorder = new MediaRecorder(stream);
+          recorder.ondataavailable = e => { if (e.data.size > 0) chunks.push(e.data); };
+          recorder.onstop = () => {
+            audioCtx.close();
+            stopTest();
+            const blob = new Blob(chunks, { type: 'audio/webm' });
+            const url = URL.createObjectURL(blob);
+            const audio = new Audio(url);
+            audio.play();
+            btn.textContent = '🔴 Record & Play';
+            status.textContent = '▶ Playing back...';
+            status.style.color = 'var(--mint-mid)';
+            audio.onended = () => { URL.revokeObjectURL(url); status.textContent = '✓ Done'; };
+          };
+          recorder.start();
+          status.textContent = '🎤 Recording... speak now';
+          status.style.color = '#e74c3c';
+          setTimeout(() => recorder.stop(), 2000);
+        })
+        .catch(err => {
+          btn.textContent = '🔴 Record & Play';
+          status.textContent = 'Error: ' + err.message;
+          status.style.color = '#e74c3c';
+        });
+    }
+
+
+  </script>
+  <script>
+    if ('serviceWorker' in navigator) {
+      window.addEventListener('load', () => {
+        navigator.serviceWorker.register('/sw.js');
+      });
+    }
   </script>
 </body>
 

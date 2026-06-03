@@ -5,6 +5,13 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>About FitFuel</title>
   <link rel="stylesheet" href="styles.css" />
+  <link rel="manifest" href="manifest.json" />
+  <link rel="icon" href="icons/icon-192.png" sizes="192x192" />
+  <link rel="apple-touch-icon" href="icons/icon-192.png" />
+  <meta name="theme-color" content="#4a3f5c" />
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-status-bar-style" content="default" />
+  <meta name="apple-mobile-web-app-title" content="FitFuel" />
 </head>
 <body>
 
@@ -24,6 +31,16 @@
     </div>
   </nav>
 
+  <!-- NEW: PROFILE COMPLETION PROGRESS BAR (Lab 2) -->
+  <div class="profile-progress-strip">
+    <div class="profile-progress-bar-track">
+      <div class="profile-progress-bar-fill" id="profile-prog-fill" style="width:25%"></div>
+    </div>
+    <p class="profile-progress-strip-label">
+      Create an account to unlock personalised tracking — <strong>25% profile complete</strong>
+    </p>
+  </div>
+
   <main class="page-content">
 
     <!-- PAGE HERO -->
@@ -40,11 +57,11 @@
         FitFuel is a web-based meal tracking platform that helps users monitor their food intake, understand their nutrition, and reach their fitness goals. We believe that sustainable health isn't about restriction — it's about awareness. When you understand what you eat, you make better choices naturally.
       </div>
 
-      <!-- PURPOSE CARDS -->
+      <!-- PURPOSE CARDS — NEW: Badges on cards (Lab 2) -->
       <div class="about-grid fade-in">
         <div class="about-card">
           <span class="about-card-icon">🎯</span>
-          <h3>Our Purpose</h3>
+          <h3>Our Purpose <span class="ff-badge ff-badge-new">New</span></h3>
           <p>To make nutrition tracking accessible, intuitive, and genuinely helpful — empowering people to build lasting healthy habits without complexity or overwhelm.</p>
         </div>
         <div class="about-card">
@@ -54,7 +71,7 @@
         </div>
         <div class="about-card">
           <span class="about-card-icon">💡</span>
-          <h3>Our Values</h3>
+          <h3>Our Values <span class="ff-badge ff-badge-hot">Core</span></h3>
           <p>We believe in education over restriction, data over guesswork, and long-term lifestyle change over short-term diets. Health is personal — we give you the tools to define it.</p>
         </div>
       </div>
@@ -100,12 +117,77 @@
         </div>
       </div>
 
+      <!-- ══ NEW: FAQ ACCORDION (Lab 2 — flush, first open by default) ══ -->
+      <div class="faq-section fade-in">
+        <h2>Frequently Asked Questions</h2>
+        <p>Everything you need to know before getting started with FitFuel.</p>
+
+        <div class="faq-accordion" id="faqAccordion">
+
+          <!-- Item 1 — open by default -->
+          <div class="faq-item">
+            <button class="faq-question" aria-expanded="true" aria-controls="faq-a1" id="faq-q1">
+              Is FitFuel completely free to use?
+              <span class="faq-chevron" aria-hidden="true">▾</span>
+            </button>
+            <div class="faq-answer open" id="faq-a1" aria-labelledby="faq-q1" role="region">
+              <p>Yes — FitFuel is 100% free. All core features including meal logging, the nutrition calculator, and progress tracking are available at no cost. There are no hidden fees or premium tiers in this prototype.</p>
+            </div>
+          </div>
+
+          <!-- Item 2 -->
+          <div class="faq-item">
+            <button class="faq-question" aria-expanded="false" aria-controls="faq-a2" id="faq-q2">
+              Is my data private and secure?
+              <span class="faq-chevron" aria-hidden="true">▾</span>
+            </button>
+            <div class="faq-answer" id="faq-a2" aria-labelledby="faq-q2" role="region">
+              <p>All data is stored locally in your browser using localStorage — it never leaves your device. As a prototype, we do not have a backend server or database. Your meals, weight logs, and account info stay entirely on your machine.</p>
+            </div>
+          </div>
+
+          <!-- Item 3 -->
+          <div class="faq-item">
+            <button class="faq-question" aria-expanded="false" aria-controls="faq-a3" id="faq-q3">
+              How is my calorie target calculated?
+              <span class="faq-chevron" aria-hidden="true">▾</span>
+            </button>
+            <div class="faq-answer" id="faq-a3" aria-labelledby="faq-q3" role="region">
+              <p>We use the Mifflin-St Jeor equation — one of the most widely accepted formulas — to estimate your Basal Metabolic Rate (BMR). We then multiply it by your activity factor to get your Total Daily Energy Expenditure (TDEE). Macro splits default to 30% protein, 40% carbs, and 30% fat.</p>
+            </div>
+          </div>
+
+          <!-- Item 4 -->
+          <div class="faq-item">
+            <button class="faq-question" aria-expanded="false" aria-controls="faq-a4" id="faq-q4">
+              Can I use FitFuel on my phone?
+              <span class="faq-chevron" aria-hidden="true">▾</span>
+            </button>
+            <div class="faq-answer" id="faq-a4" aria-labelledby="faq-q4" role="region">
+              <p>Absolutely. FitFuel is built mobile-first and is fully responsive. Every page adapts seamlessly to phones, tablets, and desktops without any horizontal scrolling or layout breakage.</p>
+            </div>
+          </div>
+
+          <!-- Item 5 -->
+          <div class="faq-item">
+            <button class="faq-question" aria-expanded="false" aria-controls="faq-a5" id="faq-q5">
+              Will there be more features in the future?
+              <span class="faq-chevron" aria-hidden="true">▾</span>
+            </button>
+            <div class="faq-answer" id="faq-a5" aria-labelledby="faq-q5" role="region">
+              <p>FitFuel is a student project built for a Web Development course. Planned features for future iterations include barcode scanning, cloud sync, social goal sharing, and recipe macro calculators. Stay tuned!</p>
+            </div>
+          </div>
+
+        </div><!-- /faq-accordion -->
+      </div>
+
       <!-- CTA -->
       <div class="about-cta fade-in">
         <h2>Ready to start your journey?</h2>
         <p>FitFuel gives you the tools to eat smarter and track what matters. No complicated setup, no subscriptions required.</p>
         <div style="display:flex;gap:0.75rem;justify-content:center;flex-wrap:wrap;">
-          <a href="#" class="btn btn-mint" style="font-size:1rem;padding:0.8rem 2rem;">Start Your Journey</a>
+          <a href="index.html" class="btn btn-mint" style="font-size:1rem;padding:0.8rem 2rem;">Start Your Journey</a>
           <a href="calculator.html" class="btn btn-outline" style="font-size:1rem;padding:0.8rem 2rem;">Try the Calculator</a>
         </div>
       </div>
@@ -121,21 +203,23 @@
         <a href="index.html" class="nav-logo"><img src="logo.png" alt="FitFuel Logo" /></a>
         <p>A web-based nutrition platform that helps you track meals, understand your body, and reach your health goals — one meal at a time.</p>
       </div>
+
+      <!-- NEW: Footer List Groups (Lab 2) -->
       <div class="footer-col">
         <h4>Navigation</h4>
-        <ul>
-          <li><a href="index.html">Home</a></li>
-          <li><a href="index.html#features">Features</a></li>
-          <li><a href="calculator.html">Calculator</a></li>
-          <li><a href="about.html">About</a></li>
+        <ul class="footer-link-group">
+          <li><a href="index.html"><span class="flg-icon">›</span> Home</a></li>
+          <li><a href="index.html#features"><span class="flg-icon">›</span> Features</a></li>
+          <li><a href="calculator.html"><span class="flg-icon">›</span> Calculator</a></li>
+          <li><a href="about.html"><span class="flg-icon">›</span> About</a></li>
         </ul>
       </div>
       <div class="footer-col">
         <h4>Platform</h4>
-        <ul>
-          <li><a href="#">Log In</a></li>
-          <li><a href="#">Sign Up Free</a></li>
-          <li><a href="#">Privacy Policy</a></li>
+        <ul class="footer-link-group">
+          <li><a href="#"><span class="flg-icon">›</span> Log In</a></li>
+          <li><a href="#"><span class="flg-icon">›</span> Sign Up Free</a></li>
+          <li><a href="#"><span class="flg-icon">›</span> Privacy Policy</a></li>
         </ul>
       </div>
     </div>
@@ -147,11 +231,42 @@
 
   <script src="auth.js"></script>
   <script>
+    /* ── Fade-in observer ─────────────────────────────────────── */
     const observer = new IntersectionObserver((entries) => {
       entries.forEach(e => { if (e.isIntersecting) e.target.classList.add('visible'); });
     }, { threshold: 0.1 });
     document.querySelectorAll('.fade-in').forEach(el => observer.observe(el));
+
+    /* ════════════════════════════════════════════════════════
+       NEW: FAQ ACCORDION (Lab 2)
+       Collapse-all-then-open pattern; first item starts open.
+    ════════════════════════════════════════════════════════ */
+    document.querySelectorAll('.faq-question').forEach(btn => {
+      btn.addEventListener('click', () => {
+        const isOpen  = btn.getAttribute('aria-expanded') === 'true';
+        const answerId = btn.getAttribute('aria-controls');
+
+        // Close all
+        document.querySelectorAll('.faq-question').forEach(b => {
+          b.setAttribute('aria-expanded', 'false');
+          document.getElementById(b.getAttribute('aria-controls')).classList.remove('open');
+        });
+
+        // Open clicked (toggle)
+        if (!isOpen) {
+          btn.setAttribute('aria-expanded', 'true');
+          document.getElementById(answerId).classList.add('open');
+        }
+      });
+    });
   </script>
 
+  <script>
+    if ('serviceWorker' in navigator) {
+      window.addEventListener('load', () => {
+        navigator.serviceWorker.register('/sw.js');
+      });
+    }
+  </script>
 </body>
 </html>

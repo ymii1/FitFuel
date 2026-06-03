@@ -5,16 +5,23 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>FitFuel — Track your meals. Reach your goals.</title>
   <link rel="stylesheet" href="styles.css" />
+  <link rel="manifest" href="manifest.json" />
+  <link rel="icon" href="icons/icon-192.png" sizes="192x192" />
+  <link rel="apple-touch-icon" href="icons/icon-192.png" />
+  <meta name="theme-color" content="#4a3f5c" />
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-status-bar-style" content="default" />
+  <meta name="apple-mobile-web-app-title" content="FitFuel" />
 </head>
 <body>
 
-  <!-- LOGIN MODAL -->
+  <!-- ══ LOGIN MODAL ════════════════════════════════════════════ -->
   <div class="auth-modal" id="login-modal" role="dialog" aria-modal="true" aria-label="Log In">
     <div class="auth-modal-box">
       <button class="auth-modal-close" aria-label="Close" onclick="Auth.closeModal('login-modal')">&times;</button>
       <div class="auth-modal-logo"><img src="logo.png" alt="FitFuel" /></div>
       <h2>Welcome back</h2>
-      <p class="auth-sub">Log in to access your dashboard & data.</p>
+      <p class="auth-sub">Log in to access your dashboard &amp; data.</p>
       <div class="auth-error" id="login-error"></div>
       <form id="login-form" novalidate>
         <div class="form-group">
@@ -31,7 +38,7 @@
     </div>
   </div>
 
-  <!-- SIGNUP MODAL -->
+  <!-- ══ SIGNUP MODAL ════════════════════════════════════════════ -->
   <div class="auth-modal" id="signup-modal" role="dialog" aria-modal="true" aria-label="Sign Up">
     <div class="auth-modal-box">
       <button class="auth-modal-close" aria-label="Close" onclick="Auth.closeModal('signup-modal')">&times;</button>
@@ -58,9 +65,48 @@
     </div>
   </div>
 
-  <!-- NAVBAR -->
+  <!-- ══ NEW: GET STARTED MODAL (Lab 2 — Modal + Floating Labels) ══ -->
+  <div class="cta-modal" id="getstarted-modal" role="dialog" aria-modal="true" aria-label="Get Started">
+    <div class="cta-modal-box">
+      <button class="cta-modal-close" aria-label="Close" id="getstarted-close">&times;</button>
+      <h2>Get Started Free 🚀</h2>
+      <p class="cta-modal-sub">Tell us a little about yourself and we'll personalise your experience.</p>
+
+      <form id="getstarted-form" novalidate>
+        <!-- Floating Label: Name -->
+        <div class="float-group">
+          <input type="text" id="gs-name" placeholder=" " required />
+          <label for="gs-name">Full Name</label>
+        </div>
+        <!-- Floating Label: Email -->
+        <div class="float-group">
+          <input type="email" id="gs-email" placeholder=" " required />
+          <label for="gs-email">Email Address</label>
+        </div>
+        <!-- Floating Label: Goal (select) -->
+        <div class="float-group">
+          <select id="gs-goal" required>
+            <option value="" disabled selected></option>
+            <option value="lose">Lose Weight</option>
+            <option value="maintain">Maintain Weight</option>
+            <option value="gain">Build Muscle</option>
+            <option value="health">Improve Overall Health</option>
+          </select>
+          <label for="gs-goal">My Primary Goal</label>
+        </div>
+
+        <div class="ff-tooltip-wrap" style="width:100%;">
+          <button type="submit" class="btn-cta-submit">Create My Free Account →</button>
+          <span class="ff-tooltip-bubble">No credit card required!</span>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- ══ STICKY NAVBAR ══════════════════════════════════════════ -->
   <nav class="navbar">
     <a href="index.html" class="nav-logo"><img src="logo.png" alt="FitFuel Logo" /></a>
+
     <ul class="nav-links">
       <li><a href="#top">Home</a></li>
       <li><a href="#features">Features</a></li>
@@ -68,68 +114,117 @@
       <li><a href="about.html">About</a></li>
       <li><a href="#contact">Contact</a></li>
     </ul>
+
+    <!-- NEW: Search field (Lab 2) -->
+    <form class="nav-search-form" role="search" onsubmit="return false;">
+      <input class="nav-search-input" type="search" placeholder="Search foods, features…" aria-label="Search" />
+      <button class="nav-search-btn" type="submit">🔍</button>
+    </form>
+
     <div class="nav-actions">
-      <a href="#" class="btn btn-ghost">Log In</a>
-      <a href="#" class="btn btn-primary">Sign Up</a>
+      <a href="#" class="btn btn-ghost" id="open-login-btn">Log In</a>
+      <a href="#" class="btn btn-primary" id="open-signup-btn">Sign Up</a>
     </div>
   </nav>
 
+  <!-- ══ NEW: PROFILE COMPLETION PROGRESS BAR (Lab 2) ═══════════ -->
+  <div class="profile-progress-strip">
+    <div class="profile-progress-bar-track">
+      <div class="profile-progress-bar-fill" id="profile-prog-fill" style="width:0%"></div>
+    </div>
+    <p class="profile-progress-strip-label" id="profile-prog-label">
+      Complete your profile to get personalised targets — <strong>0% done</strong>
+    </p>
+  </div>
+
   <main class="page-content" id="top">
 
-    <!-- HERO -->
+    <!-- ══ HERO ═══════════════════════════════════════════════════ -->
     <section class="hero">
       <div class="hero-text">
         <div class="hero-badge">New · Nutrition Tracking</div>
         <h1>Track your meals.<br><em>Understand</em> your nutrition.<br>Reach your goals.</h1>
         <p>Everything you need to manage your nutrition in one place — from calorie counting to macro tracking and progress monitoring.</p>
         <div class="hero-actions">
-          <a href="#" class="btn btn-mint">Get Started</a>
+          <!-- CTA triggers Get Started modal -->
+          <button class="btn btn-mint" id="open-getstarted-btn">Get Started</button>
           <a href="#features" class="btn btn-outline">Learn More</a>
         </div>
       </div>
+
+      <!-- NEW: CROSSFADE CAROUSEL (Lab 2) replaces static hero card -->
       <div class="hero-image">
-        <div class="hero-img-card">
-          <div class="hero-food-grid">
-            <div class="food-item">
-              <span class="food-emoji">🥗</span>
-              <span class="food-label">Garden Salad</span>
-              <span class="food-cal">142 kcal</span>
+        <div class="hero-carousel" id="heroCarousel" aria-label="Feature highlights">
+
+          <div class="hero-carousel-slides">
+
+            <!-- Slide 1: Meal Tracking -->
+            <div class="hero-slide active" role="group" aria-label="Slide 1">
+              <div class="hero-slide-bg" style="background:var(--mint-light);">
+                <span>🍽️</span>
+                <span style="font-size:1rem;font-weight:700;color:#2d7a5f;">Meal Tracking</span>
+              </div>
+              <div class="hero-slide-caption">
+                <h4>Log Every Bite Instantly</h4>
+                <p>Search 1,200+ foods and add them to your daily log in seconds.</p>
+                <div class="hero-slide-stat">
+                  <span>511 kcal today</span>
+                  <span>38g protein</span>
+                  <span>72% goal</span>
+                </div>
+              </div>
             </div>
-            <div class="food-item">
-              <span class="food-emoji">🍳</span>
-              <span class="food-label">Egg White</span>
-              <span class="food-cal">78 kcal</span>
+
+            <!-- Slide 2: Nutrition Calculator -->
+            <div class="hero-slide" role="group" aria-label="Slide 2">
+              <div class="hero-slide-bg" style="background:var(--purple-light);">
+                <span>🧮</span>
+                <span style="font-size:1rem;font-weight:700;color:var(--purple-dark);">Nutrition Calculator</span>
+              </div>
+              <div class="hero-slide-caption">
+                <h4>Know Your Numbers</h4>
+                <p>Get personalised TDEE, BMI, and macros based on your unique stats.</p>
+                <div class="hero-slide-stat">
+                  <span>2,180 kcal TDEE</span>
+                  <span>BMI 22.4</span>
+                </div>
+              </div>
             </div>
-            <div class="food-item">
-              <span class="food-emoji">🫐</span>
-              <span class="food-label">Blueberries</span>
-              <span class="food-cal">57 kcal</span>
+
+            <!-- Slide 3: Progress Tracker -->
+            <div class="hero-slide" role="group" aria-label="Slide 3">
+              <div class="hero-slide-bg" style="background:#fff3e8;">
+                <span>📈</span>
+                <span style="font-size:1rem;font-weight:700;color:#c05a10;">Progress Tracker</span>
+              </div>
+              <div class="hero-slide-caption">
+                <h4>Watch Yourself Improve</h4>
+                <p>Visualise your weight trend and calorie intake over the past week.</p>
+                <div class="hero-slide-stat">
+                  <span>7-day streak 🔥</span>
+                  <span>−1.2 kg this month</span>
+                </div>
+              </div>
             </div>
-            <div class="food-item">
-              <span class="food-emoji">🥑</span>
-              <span class="food-label">Avocado</span>
-              <span class="food-cal">234 kcal</span>
-            </div>
+
+          </div><!-- /slides -->
+
+          <!-- Prev/Next -->
+          <button class="hero-carousel-prev" id="carouselPrev" aria-label="Previous slide">‹</button>
+          <button class="hero-carousel-next" id="carouselNext" aria-label="Next slide">›</button>
+
+          <!-- Dot indicators -->
+          <div class="hero-carousel-dots" role="tablist" aria-label="Carousel navigation">
+            <button class="hero-carousel-dot active" data-slide="0" aria-label="Go to slide 1"></button>
+            <button class="hero-carousel-dot" data-slide="1" aria-label="Go to slide 2"></button>
+            <button class="hero-carousel-dot" data-slide="2" aria-label="Go to slide 3"></button>
           </div>
-          <div class="hero-stats">
-            <div class="stat-pill">
-              <span class="stat-num">511</span>
-              <span class="stat-lbl">kcal today</span>
-            </div>
-            <div class="stat-pill">
-              <span class="stat-num">38g</span>
-              <span class="stat-lbl">protein</span>
-            </div>
-            <div class="stat-pill">
-              <span class="stat-num">72%</span>
-              <span class="stat-lbl">goal met</span>
-            </div>
-          </div>
+
         </div>
       </div>
     </section>
 
-    <!-- FEATURES -->
+    <!-- ══ FEATURES ════════════════════════════════════════════════ -->
     <section class="section" id="features">
       <div class="section-center fade-in">
         <span class="section-tag">Features</span>
@@ -144,7 +239,11 @@
           <div class="feature-visual mint-bg">
             <div class="feature-visual-inner">
               <span class="feature-icon-main">🍽️</span>
-              <span class="feature-chip">+1,200 foods in database</span>
+              <!-- NEW: Badge (Lab 2) -->
+              <span class="feature-chip">
+                +1,200 foods in database
+                <span class="ff-badge ff-badge-hot">Hot</span>
+              </span>
             </div>
           </div>
           <div class="feature-text">
@@ -160,7 +259,11 @@
           <div class="feature-visual purple-bg">
             <div class="feature-visual-inner">
               <span class="feature-icon-main">🧮</span>
-              <span class="feature-chip">BMI · Calories · Macros</span>
+              <!-- NEW: Badge (Lab 2) -->
+              <span class="feature-chip">
+                BMI · Calories · Macros
+                <span class="ff-badge ff-badge-new">New</span>
+              </span>
             </div>
           </div>
           <div class="feature-text">
@@ -183,26 +286,30 @@
             <span class="feature-number">03 · Track Progress</span>
             <h3>Monitor your weight and improvements</h3>
             <p>Visualize your journey over time. Log your weight daily, celebrate milestones, and stay motivated with clear, beautiful progress charts and streak tracking.</p>
-            <a href="#" class="btn btn-mint btn-sm">Sign Up Now</a>
+            <!-- NEW: Tooltip on button (Lab 2) -->
+            <div class="ff-tooltip-wrap">
+              <a href="#" class="btn btn-mint btn-sm" id="open-signup-btn2">Sign Up Now</a>
+              <span class="ff-tooltip-bubble">Free — no credit card needed</span>
+            </div>
           </div>
         </div>
 
       </div>
     </section>
 
-    <!-- CTA -->
+    <!-- ══ CTA ═════════════════════════════════════════════════════ -->
     <div class="cta-section fade-in" id="contact">
       <h2>Start your fitness journey today</h2>
       <p>Join thousands of people who are already tracking smarter and eating better with FitFuel.</p>
       <div class="cta-actions">
-        <a href="#" class="btn btn-white">Sign Up Free</a>
+        <button class="btn btn-white" id="open-getstarted-btn2">Sign Up Free</button>
         <a href="about.html" class="btn btn-outline-white">Learn About Us</a>
       </div>
     </div>
 
   </main>
 
-  <!-- FOOTER -->
+  <!-- ══ FOOTER ══════════════════════════════════════════════════ -->
   <footer>
     <div class="footer-top">
       <div class="footer-brand">
@@ -210,26 +317,34 @@
         <p>A web-based nutrition platform that helps you track meals, understand your body, and reach your health goals — one meal at a time.</p>
         <div class="footer-email" style="margin-top:1.25rem;">
           <input type="email" placeholder="your@email.com" />
-          <button class="btn-mint-sm">Subscribe</button>
+          <!-- NEW: Tooltip on Subscribe (Lab 2) -->
+          <div class="ff-tooltip-wrap">
+            <button class="btn-mint-sm">Subscribe</button>
+            <span class="ff-tooltip-bubble">Get weekly nutrition tips!</span>
+          </div>
         </div>
       </div>
+
+      <!-- NEW: Footer List Group for Navigation (Lab 2) -->
       <div class="footer-col">
         <h4>Navigation</h4>
-        <ul>
-          <li><a href="index.html">Home</a></li>
-          <li><a href="#features">Features</a></li>
-          <li><a href="calculator.html">Calculator</a></li>
-          <li><a href="about.html">About</a></li>
-          <li><a href="#contact">Contact</a></li>
+        <ul class="footer-link-group">
+          <li><a href="index.html"><span class="flg-icon">›</span> Home</a></li>
+          <li><a href="#features"><span class="flg-icon">›</span> Features</a></li>
+          <li><a href="calculator.html"><span class="flg-icon">›</span> Calculator</a></li>
+          <li><a href="about.html"><span class="flg-icon">›</span> About</a></li>
+          <li><a href="#contact"><span class="flg-icon">›</span> Contact</a></li>
         </ul>
       </div>
+
+      <!-- NEW: Footer List Group for Platform links (Lab 2) -->
       <div class="footer-col">
         <h4>Platform</h4>
-        <ul>
-          <li><a href="#">Log In</a></li>
-          <li><a href="#">Sign Up Free</a></li>
-          <li><a href="#">Privacy Policy</a></li>
-          <li><a href="#">Terms of Use</a></li>
+        <ul class="footer-link-group">
+          <li><a href="#"><span class="flg-icon">›</span> Log In</a></li>
+          <li><a href="#"><span class="flg-icon">›</span> Sign Up Free</a></li>
+          <li><a href="#"><span class="flg-icon">›</span> Privacy Policy</a></li>
+          <li><a href="#"><span class="flg-icon">›</span> Terms of Use</a></li>
         </ul>
       </div>
     </div>
@@ -241,16 +356,121 @@
 
   <script src="auth.js"></script>
   <script>
+    /* ── Intersection observer for fade-in ────────────────── */
     const observer = new IntersectionObserver((entries) => {
       entries.forEach(e => { if (e.isIntersecting) { e.target.classList.add('visible'); } });
     }, { threshold: 0.12 });
     document.querySelectorAll('.fade-in').forEach(el => observer.observe(el));
 
-    // Show login modal if redirected with ?auth=required
+    /* ── Show login modal if redirected with ?auth=required ── */
     if (new URLSearchParams(location.search).get('auth') === 'required') {
       setTimeout(() => Auth.openModal('login-modal'), 300);
     }
+
+    /* ── Sign-up shortcut from feature section ─────────────── */
+    const signupBtn2 = document.getElementById('open-signup-btn2');
+    if (signupBtn2) signupBtn2.addEventListener('click', e => { e.preventDefault(); Auth.openModal('signup-modal'); });
+
+    /* ════════════════════════════════════════════════════════
+       NEW: PROFILE COMPLETION PROGRESS BAR (Lab 2)
+       Fills based on localStorage session data
+    ════════════════════════════════════════════════════════ */
+    (function updateProfileProgress() {
+      const user = Auth.getUser();
+      let pct = 0;
+      if (user) pct += 40;                                      // logged in
+      const hasGoal = !!localStorage.getItem('fitfuel_goal');
+      if (hasGoal) pct += 20;
+      const hasWeight = !!localStorage.getItem('fitfuel_weight_log');
+      if (hasWeight) pct += 20;
+      const hasMeals = !!localStorage.getItem('fitfuel_cal_goal');
+      if (hasMeals) pct += 20;
+
+      document.getElementById('profile-prog-fill').style.width = pct + '%';
+      document.getElementById('profile-prog-label').innerHTML =
+        pct === 100
+          ? '✅ Profile complete! You\'re all set.'
+          : `Complete your profile to get personalised targets — <strong>${pct}% done</strong>`;
+    })();
+
+    /* ════════════════════════════════════════════════════════
+       NEW: HERO CAROUSEL (Lab 2 — crossfade)
+    ════════════════════════════════════════════════════════ */
+    (function initCarousel() {
+      const slides = document.querySelectorAll('.hero-slide');
+      const dots   = document.querySelectorAll('.hero-carousel-dot');
+      let current  = 0;
+      let timer;
+
+      function goTo(n) {
+        slides[current].classList.remove('active');
+        dots[current].classList.remove('active');
+        current = (n + slides.length) % slides.length;
+        slides[current].classList.add('active');
+        dots[current].classList.add('active');
+      }
+
+      function next() { goTo(current + 1); }
+      function prev() { goTo(current - 1); }
+
+      function startAuto() { timer = setInterval(next, 4000); }
+      function resetAuto()  { clearInterval(timer); startAuto(); }
+
+      document.getElementById('carouselNext').addEventListener('click', () => { next(); resetAuto(); });
+      document.getElementById('carouselPrev').addEventListener('click', () => { prev(); resetAuto(); });
+      dots.forEach(dot => {
+        dot.addEventListener('click', () => { goTo(parseInt(dot.dataset.slide)); resetAuto(); });
+      });
+
+      startAuto();
+    })();
+
+    /* ════════════════════════════════════════════════════════
+       NEW: GET STARTED MODAL (Lab 2)
+    ════════════════════════════════════════════════════════ */
+    function openGetStarted() {
+      document.getElementById('getstarted-modal').classList.add('active');
+      document.body.style.overflow = 'hidden';
+    }
+    function closeGetStarted() {
+      document.getElementById('getstarted-modal').classList.remove('active');
+      document.body.style.overflow = '';
+    }
+
+    document.getElementById('open-getstarted-btn').addEventListener('click', openGetStarted);
+    document.getElementById('open-getstarted-btn2').addEventListener('click', openGetStarted);
+    document.getElementById('getstarted-close').addEventListener('click', closeGetStarted);
+    document.getElementById('getstarted-modal').addEventListener('click', e => {
+      if (e.target === document.getElementById('getstarted-modal')) closeGetStarted();
+    });
+
+    /* Floating label: mark select as has-value when an option is chosen */
+    document.getElementById('gs-goal').addEventListener('change', function() {
+      this.classList.toggle('has-value', this.value !== '');
+    });
+
+    /* Submit → hand off to the auth signup flow */
+    document.getElementById('getstarted-form').addEventListener('submit', e => {
+      e.preventDefault();
+      const name  = document.getElementById('gs-name').value.trim();
+      const email = document.getElementById('gs-email').value.trim();
+      const goal  = document.getElementById('gs-goal').value;
+      if (!name || !email || !goal) return;
+      localStorage.setItem('fitfuel_goal', goal);
+      closeGetStarted();
+      /* Pre-fill signup modal and open it */
+      document.getElementById('signup-name').value  = name;
+      document.getElementById('signup-email').value = email;
+      Auth.openModal('signup-modal');
+    });
   </script>
 
+  <script>
+    if ('serviceWorker' in navigator) {
+      window.addEventListener('load', () => {
+        navigator.serviceWorker.register('/sw.js');
+      });
+    }
+  </script>
 </body>
 </html>

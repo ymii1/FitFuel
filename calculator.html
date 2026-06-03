@@ -5,6 +5,13 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Nutrition Calculator — FitFuel</title>
   <link rel="stylesheet" href="styles.css" />
+  <link rel="manifest" href="manifest.json" />
+  <link rel="icon" href="icons/icon-192.png" sizes="192x192" />
+  <link rel="apple-touch-icon" href="icons/icon-192.png" />
+  <meta name="theme-color" content="#4a3f5c" />
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-status-bar-style" content="default" />
+  <meta name="apple-mobile-web-app-title" content="FitFuel" />
 </head>
 <body>
 
@@ -23,6 +30,16 @@
       <a href="#" class="btn btn-primary">Sign Up</a>
     </div>
   </nav>
+
+  <!-- NEW: PROFILE COMPLETION PROGRESS BAR (Lab 2) -->
+  <div class="profile-progress-strip">
+    <div class="profile-progress-bar-track">
+      <div class="profile-progress-bar-fill" style="width:50%"></div>
+    </div>
+    <p class="profile-progress-strip-label">
+      🧮 You're using the calculator — <strong>50% of your profile is set up</strong>. <a href="index.html" style="color:var(--purple-dark);font-weight:600;text-decoration:none;">Sign up to save results →</a>
+    </p>
+  </div>
 
   <main class="page-content">
 
@@ -81,7 +98,11 @@
           <span class="error-msg" id="activity-err">Please select an activity level.</span>
         </div>
 
-        <button class="btn-calc" onclick="calculate()">Calculate My Nutrition</button>
+        <!-- NEW: Tooltip on Calculate button (Lab 2) -->
+        <div class="ff-tooltip-wrap" style="width:100%;margin-top:0.5rem;">
+          <button class="btn-calc" onclick="calculate()">Calculate My Nutrition</button>
+          <span class="ff-tooltip-bubble">Uses the Mifflin-St Jeor equation</span>
+        </div>
       </div>
 
       <!-- RESULTS AREA -->
@@ -134,7 +155,7 @@
 
     </section>
 
-    <!-- INFO CARDS -->
+    <!-- INFO CARDS — NEW: Badges (Lab 2) -->
     <section class="section" style="background:white;">
       <div class="section-center fade-in">
         <span class="section-tag">How It Works</span>
@@ -143,7 +164,7 @@
       <div class="about-grid fade-in" style="max-width:860px;margin:0 auto;">
         <div class="about-card">
           <span class="about-card-icon">🔥</span>
-          <h3>TDEE</h3>
+          <h3>TDEE <span class="ff-badge ff-badge-new">Key Metric</span></h3>
           <p>Your Total Daily Energy Expenditure — the number of calories your body burns each day based on your stats and activity level.</p>
         </div>
         <div class="about-card">
@@ -153,7 +174,7 @@
         </div>
         <div class="about-card">
           <span class="about-card-icon">🧪</span>
-          <h3>Macros</h3>
+          <h3>Macros <span class="ff-badge ff-badge-hot">Essential</span></h3>
           <p>Macronutrients — protein, carbohydrates, and fat — are the three main energy sources. Balancing them is key to body composition goals.</p>
         </div>
       </div>
@@ -163,7 +184,7 @@
       <h2>Ready to start tracking?</h2>
       <p>Create a free account and log your meals, track your progress, and hit your goals.</p>
       <div class="cta-actions">
-        <a href="#" class="btn btn-white">Sign Up Free</a>
+        <a href="index.html" class="btn btn-white">Sign Up Free</a>
         <a href="index.html" class="btn btn-outline-white">Go Back Home</a>
       </div>
     </div>
@@ -177,21 +198,23 @@
         <a href="index.html" class="nav-logo"><img src="logo.png" alt="FitFuel Logo" /></a>
         <p>A web-based nutrition platform that helps you track meals, understand your body, and reach your health goals — one meal at a time.</p>
       </div>
+
+      <!-- NEW: Footer List Groups (Lab 2) -->
       <div class="footer-col">
         <h4>Navigation</h4>
-        <ul>
-          <li><a href="index.html">Home</a></li>
-          <li><a href="index.html#features">Features</a></li>
-          <li><a href="calculator.html">Calculator</a></li>
-          <li><a href="about.html">About</a></li>
+        <ul class="footer-link-group">
+          <li><a href="index.html"><span class="flg-icon">›</span> Home</a></li>
+          <li><a href="index.html#features"><span class="flg-icon">›</span> Features</a></li>
+          <li><a href="calculator.html"><span class="flg-icon">›</span> Calculator</a></li>
+          <li><a href="about.html"><span class="flg-icon">›</span> About</a></li>
         </ul>
       </div>
       <div class="footer-col">
         <h4>Platform</h4>
-        <ul>
-          <li><a href="#">Log In</a></li>
-          <li><a href="#">Sign Up Free</a></li>
-          <li><a href="#">Privacy Policy</a></li>
+        <ul class="footer-link-group">
+          <li><a href="#"><span class="flg-icon">›</span> Log In</a></li>
+          <li><a href="#"><span class="flg-icon">›</span> Sign Up Free</a></li>
+          <li><a href="#"><span class="flg-icon">›</span> Privacy Policy</a></li>
         </ul>
       </div>
     </div>
@@ -208,23 +231,23 @@
     }
 
     function validate() {
-      const age = parseFloat(document.getElementById('age').value);
-      const gender = document.getElementById('gender').value;
-      const weight = parseFloat(document.getElementById('weight').value);
-      const height = parseFloat(document.getElementById('height').value);
+      const age      = parseFloat(document.getElementById('age').value);
+      const gender   = document.getElementById('gender').value;
+      const weight   = parseFloat(document.getElementById('weight').value);
+      const height   = parseFloat(document.getElementById('height').value);
       const activity = document.getElementById('activity').value;
       let valid = true;
 
-      showError('age-err', !age || age < 10 || age > 100);
+      showError('age-err',      !age      || age < 10    || age > 100);
       if (!age || age < 10 || age > 100) valid = false;
 
-      showError('gender-err', !gender);
+      showError('gender-err',   !gender);
       if (!gender) valid = false;
 
-      showError('weight-err', !weight || weight < 20 || weight > 300);
+      showError('weight-err',   !weight   || weight < 20  || weight > 300);
       if (!weight || weight < 20 || weight > 300) valid = false;
 
-      showError('height-err', !height || height < 100 || height > 250);
+      showError('height-err',   !height   || height < 100 || height > 250);
       if (!height || height < 100 || height > 250) valid = false;
 
       showError('activity-err', !activity);
@@ -235,18 +258,18 @@
 
     function getBMICategory(bmi) {
       if (bmi < 18.5) return 'Underweight';
-      if (bmi < 25) return 'Normal weight';
-      if (bmi < 30) return 'Overweight';
+      if (bmi < 25)   return 'Normal weight';
+      if (bmi < 30)   return 'Overweight';
       return 'Obese';
     }
 
     function calculate() {
       if (!validate()) return;
 
-      const age = parseFloat(document.getElementById('age').value);
-      const gender = document.getElementById('gender').value;
-      const weight = parseFloat(document.getElementById('weight').value);
-      const height = parseFloat(document.getElementById('height').value);
+      const age      = parseFloat(document.getElementById('age').value);
+      const gender   = document.getElementById('gender').value;
+      const weight   = parseFloat(document.getElementById('weight').value);
+      const height   = parseFloat(document.getElementById('height').value);
       const activity = parseFloat(document.getElementById('activity').value);
 
       // Mifflin-St Jeor BMR
@@ -261,26 +284,21 @@
 
       // BMI
       const heightM = height / 100;
-      const bmi = (weight / (heightM * heightM)).toFixed(1);
-      const bmiCat = getBMICategory(parseFloat(bmi));
+      const bmi     = (weight / (heightM * heightM)).toFixed(1);
+      const bmiCat  = getBMICategory(parseFloat(bmi));
 
-      // Macros: 30% protein, 40% carbs, 30% fat
-      const proteinCals = tdee * 0.30;
-      const carbCals = tdee * 0.40;
-      const fatCals = tdee * 0.30;
+      // Macros: 30% protein · 40% carbs · 30% fat
+      const proteinG = Math.round((tdee * 0.30) / 4);
+      const carbG    = Math.round((tdee * 0.40) / 4);
+      const fatG     = Math.round((tdee * 0.30) / 9);
 
-      const proteinG = Math.round(proteinCals / 4);
-      const carbG = Math.round(carbCals / 4);
-      const fatG = Math.round(fatCals / 9);
-
-      // Display results
-      document.getElementById('res-calories').textContent = tdee.toLocaleString() + ' kcal';
-      document.getElementById('res-cal-note').textContent = 'Total daily energy expenditure (TDEE)';
-      document.getElementById('res-bmi').textContent = bmi;
-      document.getElementById('res-bmi-cat').textContent = 'BMI Category: ' + bmiCat;
-      document.getElementById('macro-p').textContent = proteinG;
-      document.getElementById('macro-c').textContent = carbG;
-      document.getElementById('macro-f').textContent = fatG;
+      document.getElementById('res-calories').textContent  = tdee.toLocaleString() + ' kcal';
+      document.getElementById('res-cal-note').textContent  = 'Total daily energy expenditure (TDEE)';
+      document.getElementById('res-bmi').textContent       = bmi;
+      document.getElementById('res-bmi-cat').textContent   = 'BMI Category: ' + bmiCat;
+      document.getElementById('macro-p').textContent       = proteinG;
+      document.getElementById('macro-c').textContent       = carbG;
+      document.getElementById('macro-f').textContent       = fatG;
 
       document.getElementById('placeholder').style.display = 'none';
       const res = document.getElementById('results');
@@ -291,11 +309,8 @@
     function resetForm() {
       document.getElementById('results').classList.remove('visible');
       document.getElementById('placeholder').style.display = 'flex';
-      document.getElementById('age').value = '';
-      document.getElementById('gender').value = '';
-      document.getElementById('weight').value = '';
-      document.getElementById('height').value = '';
-      document.getElementById('activity').value = '';
+      ['age', 'gender', 'weight', 'height', 'activity'].forEach(id =>
+        document.getElementById(id).value = '');
     }
 
     const observer = new IntersectionObserver((entries) => {
@@ -304,5 +319,12 @@
     document.querySelectorAll('.fade-in').forEach(el => observer.observe(el));
   </script>
 
+  <script>
+    if ('serviceWorker' in navigator) {
+      window.addEventListener('load', () => {
+        navigator.serviceWorker.register('/sw.js');
+      });
+    }
+  </script>
 </body>
 </html>

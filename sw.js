@@ -8,6 +8,7 @@ const ASSETS = [
   '/styles.css',
   '/auth.js',
   '/logo.png',
+  '/favicon.png',
   '/manifest.json',
   '/icons/icon-192.png',
   '/icons/icon-512.png'

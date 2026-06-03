@@ -188,8 +188,10 @@
               <p class="ai-settings-hint" id="ai-key-status"></p>
 
               <hr style="border:none;border-top:1px solid rgba(157,192,188,0.3);margin:0.75rem 0;" />
-              <label class="ai-settings-label"><strong>🎤 Microphone</strong></label>
-              <div id="ai-mic-status" style="margin-bottom:0.4rem;font-size:0.82rem;"></div>
+              <label class="ai-settings-label"><strong>🎤 Microphone & Voice</strong></label>
+              <div id="ai-mic-status" style="margin-bottom:0.4rem;font-size:0.82rem;">
+                <span id="ai-speech-check">Checking browser support...</span>
+              </div>
               <div style="display:flex;gap:0.4rem;align-items:stretch;">
                 <select class="ai-mic-select" id="ai-mic-select" style="flex:1;">
                   <option value="">— Loading... —</option>
@@ -1285,8 +1287,15 @@ Be warm and conversational. Ask follow-up questions like "What else did you have
       const select = document.getElementById('ai-mic-select');
       const status = document.getElementById('ai-mic-status');
 
+      // Check speech recognition support
+      const speechCheck = document.getElementById('ai-speech-check');
+      const hasSR = !!(window.SpeechRecognition || window.webkitSpeechRecognition);
+      const isSecure = window.isSecureContext;
+      speechCheck.innerHTML = (isSecure ? '✅' : '❌') + ' HTTPS: ' + (isSecure ? 'yes' : 'no — mic needs HTTPS')
+        + ' &nbsp;|&nbsp; ' + (hasSR ? '✅' : '❌') + ' Speech API: ' + (hasSR ? 'supported' : 'not supported (try Chrome)');
+
       if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
-        status.textContent = '❌ Mic not supported in this browser. Try Chrome.';
+        status.innerHTML = '❌ Mic not supported in this browser. Try Chrome.';
         select.innerHTML = '<option value="">— Not supported —</option>';
         return;
       }

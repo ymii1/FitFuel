@@ -235,7 +235,6 @@
             <div class="ai-running-total" id="ai-running-total" style="display:none;"></div>
             <div class="ai-chat-input-row">
               <input type="text" class="ai-chat-input" id="ai-chat-input" placeholder="Tell me what you ate..." />
-              <button class="mic-btn" id="ai-mic-btn" title="Speak what you ate" onclick="toggleChatMic()">🎤</button>
               <button class="btn-parse-ai" id="btn-ai-send" onclick="sendChatMessage()">Send</button>
             </div>
             <div class="voice-status" id="ai-chat-status"></div>
@@ -1049,64 +1048,6 @@
       document.getElementById('voice-status').textContent = '🎤 Listening... Say a meal like "Chicken breast 300 calories 30 protein 10 carbs 5 fat"';
       document.getElementById('voice-status').className = 'voice-status listening';
       recognition.start();
-    }
-
-    /* ── Chat voice mic ──────────────────────────────── */
-    let chatVoicing = false;
-    let chatReg = null;
-
-    function chatStopMic() {
-      if (chatReg) { try { chatReg.stop(); } catch (e) {} chatReg = null; }
-      chatVoicing = false;
-      document.getElementById('ai-mic-btn').classList.remove('listening');
-      document.getElementById('ai-chat-status').textContent = '';
-      document.getElementById('ai-chat-status').className = 'voice-status';
-    }
-
-    function chatStartMic() {
-      const SR = window.SpeechRecognition || window.webkitSpeechRecognition;
-      if (!SR) {
-        document.getElementById('ai-chat-status').textContent = 'Speech not supported — try Chrome';
-        document.getElementById('ai-chat-status').className = 'voice-status error';
-        return;
-      }
-      chatReg = new SR();
-      chatReg.lang = 'en-US';
-      chatReg.interimResults = false;
-      chatReg.continuous = false;
-      chatReg.maxAlternatives = 1;
-
-      chatReg.onresult = function (e) {
-        const text = e.results[0][0].transcript;
-        document.getElementById('ai-chat-input').value = text;
-        chatStopMic();
-        setTimeout(() => sendChatMessage(), 300);
-      };
-
-      chatReg.onerror = function (e) {
-        const el = document.getElementById('ai-chat-status');
-        el.className = 'voice-status error';
-        if (e.error === 'no-speech') el.textContent = 'No speech detected — tap 🎤 and speak';
-        else if (e.error === 'audio-capture') el.textContent = 'No mic found';
-        else if (e.error === 'not-allowed') el.textContent = 'Mic blocked — allow in browser settings';
-        else el.textContent = 'Mic error: ' + e.error;
-        chatStopMic();
-      };
-
-      chatReg.onend = function () {
-        chatStopMic();
-      };
-
-      document.getElementById('ai-mic-btn').classList.add('listening');
-      document.getElementById('ai-chat-status').textContent = '🎤 Listening...';
-      document.getElementById('ai-chat-status').className = 'voice-status listening';
-      chatVoicing = true;
-      try { chatReg.start(); } catch (e) { chatStopMic(); document.getElementById('ai-chat-status').textContent = 'Error: ' + e.message; document.getElementById('ai-chat-status').className = 'voice-status error'; }
-    }
-
-    function toggleChatMic() {
-      if (chatVoicing) { chatStopMic(); return; }
-      chatStartMic();
     }
 
     // Initialise on load so it's ready

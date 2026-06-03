@@ -76,6 +76,33 @@ const Auth = (() => {
       }
     }
 
+    // ── Mobile menu sync ──────────────────────────────────────
+    const mobileActions = document.querySelector('.mobile-actions');
+    const mobileLinks   = document.querySelector('.mobile-links');
+    if (mobileActions) {
+      if (user) {
+        mobileActions.innerHTML = `
+          <a href="dashboard.html" class="btn btn-primary">Dashboard</a>
+          <button class="btn btn-ghost" onclick="Auth.logout(); location.href='index.html';">Log Out</button>
+        `;
+      } else {
+        mobileActions.innerHTML = `
+          <a href="#" class="btn btn-ghost" id="mobile-login-btn">Log In</a>
+          <a href="#" class="btn btn-primary" id="mobile-signup-btn">Sign Up</a>
+        `;
+        const mLogin  = document.getElementById('mobile-login-btn');
+        const mSignup = document.getElementById('mobile-signup-btn');
+        if (mLogin)  mLogin.addEventListener('click', (e) => { e.preventDefault(); openModal('login-modal'); });
+        if (mSignup) mSignup.addEventListener('click', (e) => { e.preventDefault(); openModal('signup-modal'); });
+      }
+    }
+    if (mobileLinks && user && !mobileLinks.querySelector('.mobile-dash-link')) {
+      const li = document.createElement('li');
+      li.className = 'mobile-dash-link';
+      li.innerHTML = '<a href="dashboard.html">Dashboard</a>';
+      mobileLinks.prepend(li);
+    }
+
     // Re-bind modal openers (they may have been replaced by innerHTML)
     const loginBtn  = document.getElementById('open-login-btn');
     const signupBtn = document.getElementById('open-signup-btn');
@@ -102,8 +129,35 @@ const Auth = (() => {
   }
 
   /* ── Init: wire modals if they exist on this page ───────── */
+  function toggleMobile(e) {
+    const btn = document.getElementById('hamburger');
+    const menu = document.getElementById('mobile-menu');
+    if (!btn || !menu) return;
+    const opening = !menu.classList.contains('open');
+    menu.classList.toggle('open');
+    btn.classList.toggle('active');
+    document.body.style.overflow = opening ? 'hidden' : '';
+  }
+
   function init() {
     updateNav();
+
+    // Hamburger menu toggle
+    const hamburger = document.getElementById('hamburger');
+    const mobileMenu = document.getElementById('mobile-menu');
+    if (hamburger && mobileMenu) {
+      hamburger.addEventListener('click', toggleMobile);
+      // Close menu when clicking overlay background
+      mobileMenu.addEventListener('click', (e) => {
+        if (e.target === mobileMenu) toggleMobile();
+      });
+      // Close menu when a link is clicked
+      mobileMenu.querySelectorAll('a, button').forEach(el => {
+        el.addEventListener('click', () => {
+          if (mobileMenu.classList.contains('open')) toggleMobile();
+        });
+      });
+    }
 
     // Close on overlay click
     document.querySelectorAll('.auth-modal').forEach(modal => {

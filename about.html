@@ -29,7 +29,27 @@
       <a href="#" class="btn btn-ghost">Log In</a>
       <a href="#" class="btn btn-primary">Sign Up</a>
     </div>
+    <button class="hamburger" id="hamburger" aria-label="Toggle menu">
+      <span></span><span></span><span></span>
+    </button>
   </nav>
+
+  <!-- Mobile menu -->
+  <div class="mobile-menu" id="mobile-menu">
+    <div class="mobile-menu-inner">
+      <ul class="mobile-links">
+        <li><a href="index.html">Home</a></li>
+        <li><a href="index.html#features">Features</a></li>
+        <li><a href="calculator.html">Calculator</a></li>
+        <li><a href="about.html">About</a></li>
+        <li><a href="index.html#contact">Contact</a></li>
+      </ul>
+      <div class="mobile-actions">
+        <a href="#" class="btn btn-ghost" id="mobile-login-btn">Log In</a>
+        <a href="#" class="btn btn-primary" id="mobile-signup-btn">Sign Up</a>
+      </div>
+    </div>
+  </div>
 
   <!-- NEW: PROFILE COMPLETION PROGRESS BAR (Lab 2) -->
   <div class="profile-progress-strip">
@@ -102,7 +122,7 @@
       </div>
 
       <!-- STATS ROW -->
-      <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:1rem;margin-bottom:3rem;" class="fade-in">
+      <div class="stats-grid fade-in">
         <div class="about-card" style="text-align:center;">
           <span style="font-family:var(--font-display);font-size:2.5rem;color:var(--purple-dark);display:block;">3</span>
           <span style="font-size:0.9rem;color:var(--text-muted);">Pages built</span>

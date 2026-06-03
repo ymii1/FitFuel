@@ -19,7 +19,7 @@
 
 <body>
 
-  <nav class="navbar">
+    <nav class="navbar">
     <a href="index.html" class="nav-logo"><img src="logo.png" alt="FitFuel Logo" /></a>
     <ul class="nav-links">
       <li><a href="index.html">Home</a></li>
@@ -29,7 +29,25 @@
     </ul>
     <div class="nav-actions">
     </div>
+    <button class="hamburger" id="hamburger" aria-label="Toggle menu">
+      <span></span><span></span><span></span>
+    </button>
   </nav>
+
+  <!-- Mobile menu -->
+  <div class="mobile-menu" id="mobile-menu">
+    <div class="mobile-menu-inner">
+      <ul class="mobile-links">
+        <li><a href="index.html">Home</a></li>
+        <li><a href="index.html#features">Features</a></li>
+        <li><a href="calculator.html">Calculator</a></li>
+        <li><a href="about.html">About</a></li>
+      </ul>
+      <div class="mobile-actions">
+        <a href="index.html" class="btn btn-ghost" onclick="Auth.logout();">Log Out</a>
+      </div>
+    </div>
+  </div>
 
   <div class="page-content">
 
